@@ -1,9 +1,10 @@
 import logging
 
 from django.db import transaction
-from .models import Organization, Payment
 from datetime import datetime
 from uuid import UUID
+
+from payments.models import Organization, Payment
 
 logger = logging.getLogger(__name__)
 

@@ -1,0 +1,13 @@
+[tool.poetry]
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.9"
+django = "4.2.17"
+djangorestframework = "^3.16.0"
+mysqlclient = "^2.2.7"
+dotenv = "^0.9.9"
+
+[tool.poetry.group.dev.dependencies]
+black = "^25.1.0"
+

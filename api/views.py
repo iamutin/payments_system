@@ -4,39 +4,22 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from payments.models import Organization, Payment
+from payments.models import Organization
 from api.serializers import OrganizationSerializer, PaymentSerializer
-
-logger = logging.getLogger(__name__)
+from payments.services import PaymentService
 
 
 class WebhookView(APIView):
     def post(self, request):
-        data = request.data
-        operation_id = data.get("operation_id")
-        amount = data.get("amount")
-        payer_inn = data.get("payer_inn")
-        document_number = data.get("document_number")
-        document_date = data.get("document_date")
+        serializer = PaymentSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-        if Payment.objects.filter(operation_id=operation_id).exists():
-            return Response(status=status.HTTP_200_OK)
+        payment, created = PaymentService.create_payment(**serializer.validated_data)
 
-        payment = Payment.objects.create(
-            operation_id=operation_id,
-            amount=amount,
-            payer_inn=payer_inn,
-            document_number=document_number,
-            document_date=document_date,
+        return Response(
+            PaymentSerializer(payment).data,
+            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
         )
-
-        organization, created = Organization.objects.get_or_create(inn=payer_inn)
-        organization.balance += amount
-        organization.save()
-
-        logger.info(f"Balance updated for {payer_inn}: {organization.balance}")
-
-        return Response(PaymentSerializer(payment).data, status=status.HTTP_201_CREATED)
 
 
 class BalanceView(APIView):

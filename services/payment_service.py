@@ -20,8 +20,14 @@ class PaymentService:
         document_date: datetime,
     ) -> tuple[Payment, bool]:
         """
-        Создает платеж, если он не существует.
-        Возвращает кортеж: (payment, created)
+        Создание нового платежа или получение существующего, с защитой от дубликатов и обновлением баланса организации.
+
+        :param operation_id: идентификатор операции (UUID)
+        :param amount: сумма платежа (целое число)
+        :param payer_inn: ИНН плательщика (строка)
+        :param document_number: номер документа (строка)
+        :param document_date: дата документа (datetime)
+        :return: кортеж (Payment, bool), где Payment — созданный платеж, bool — признак того, был ли платеж создан
         """
         payment, created = Payment.objects.get_or_create(
             operation_id=operation_id,
